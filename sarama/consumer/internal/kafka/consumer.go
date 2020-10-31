@@ -35,10 +35,6 @@ func NewConsumer() (ConsumerGroup, error) {
 	}, nil
 }
 
-//func (consumer *Consumer) FetchChanMessage(topic string) chan sarama.ConsumerMessage {
-//	return consumer.consumedChan[topic]
-//}
-
 func (consumer *Consumer) ConsumedChan() map[string]chan sarama.ConsumerMessage {
 	return consumer.consumedChan
 }
