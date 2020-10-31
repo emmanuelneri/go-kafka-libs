@@ -7,9 +7,9 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/Shopify/sarama/mocks"
 	"github.com/stretchr/testify/assert"
-	"kafka_app/internal/kafka"
-	"kafka_app/pkg/person"
 	"net/http/httptest"
+	"sarama_producer/internal/kafka"
+	"sarama_producer/pkg/person"
 	"testing"
 )
 

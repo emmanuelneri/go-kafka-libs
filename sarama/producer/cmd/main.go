@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"kafka_app/internal/handler"
-	"kafka_app/internal/kafka"
 	"log"
 	"net/http"
+	"sarama_producer/internal/handler"
+	"sarama_producer/internal/kafka"
 )
 
 const (

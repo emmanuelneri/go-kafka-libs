@@ -1,4 +1,4 @@
-module kafka_app
+module sarama_producer
 
 go 1.14
 

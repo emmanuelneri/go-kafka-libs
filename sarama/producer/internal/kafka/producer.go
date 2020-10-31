@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"github.com/Shopify/sarama"
-	"kafka_app/config"
+	"sarama_producer/config"
 )
 
 type Producer interface {

@@ -3,10 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"github.com/Shopify/sarama"
-	"kafka_app/internal/kafka"
-	"kafka_app/pkg/person"
 	"log"
 	"net/http"
+	"sarama_producer/internal/kafka"
+	"sarama_producer/pkg/person"
 )
 
 type PersonHandler interface {
