@@ -12,8 +12,7 @@ The use case is segregate into two applications:
 - Producer: Offer two HTTP interfaces to produce information into Kafka with synchronous producer
 - Consumer: Consume two different topics with Kafka consumer group
 
-![alt tag](https://github.com/emmanuelneri/go-kafka-libs/blob/master/usecase.png?style=centerme)
-
+![alt tag](https://github.com/emmanuelneri/go-kafka-libs/blob/main/usecase.png?style=centerme)
 
 ### Start environment
 - `./start-infra.sh `
