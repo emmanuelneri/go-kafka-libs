@@ -7,6 +7,14 @@ Simple project to validate Golang libs for Kafka producers and consumers.
 - [Confluent](https://github.com/confluentinc/confluent-kafka-go)
 - [Segmentio](https://github.com/segmentio/kafka-go)
 
+### Use Case
+The use case is segregate into two applications:
+- Producer: Offer two HTTP interfaces to produce information into Kafka with synchronous producer
+- Consumer: Consume two different topics with Kafka consumer group
+
+![alt tag](https://github.com/emmanuelneri/go-kafka-libs/blob/master/usecase.png?style=centerme)
+
+
 ### Start environment
 - `./start-infra.sh `
 - `./build-images.sh `
@@ -15,7 +23,7 @@ Simple project to validate Golang libs for Kafka producers and consumers.
 ### Send data to services 
 - `./send.sh `
 
-#### View services metrics
+#### Services metrics
 1. Access Grafana
 - http://localhost:3000/login
     - default login: admin/admin
