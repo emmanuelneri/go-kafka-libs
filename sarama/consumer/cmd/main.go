@@ -19,5 +19,5 @@ func main() {
 	go pkg.NewKafkaSubscriberImpl(consumer, []string{pkg.PersonTopic, pkg.TransactionTopic}).Start()
 
 	http.Handle("/metrics", promhttp.Handler())
-	log.Panicln(http.ListenAndServe(":8081", nil))
+	log.Panicln(http.ListenAndServe(":8091", nil))
 }

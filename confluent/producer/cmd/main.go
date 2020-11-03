@@ -24,6 +24,6 @@ func main() {
 	http.HandleFunc("/confluent/person", handler.NewPersonHandlerImpl(PersonTopic, producer).Handle)
 	http.HandleFunc("/confluent/transaction", handler.NewTransactionHandlerImpl(TransactionTopic, producer).Handle)
 
-	http.Handle("/confluent/metrics", promhttp.Handler())
-	log.Panicln(http.ListenAndServe(":8090", nil))
+	http.Handle("/metrics", promhttp.Handler())
+	log.Panicln(http.ListenAndServe(":8080", nil))
 }

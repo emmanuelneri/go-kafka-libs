@@ -24,6 +24,6 @@ func main() {
 	http.HandleFunc("/sarama/person", handler.NewPersonHandlerImpl(PersonTopic, producer).Handle)
 	http.HandleFunc("/sarama/transaction", handler.NewTransactionHandlerImpl(TransactionTopic, producer).Handle)
 
-	http.Handle("/sarama/metrics", promhttp.Handler())
-	log.Panicln(http.ListenAndServe(":8080", nil))
+	http.Handle("/metrics", promhttp.Handler())
+	log.Panicln(http.ListenAndServe(":8090", nil))
 }

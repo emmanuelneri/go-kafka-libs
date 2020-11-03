@@ -22,6 +22,6 @@ func main() {
 	transactionProducer := kafka.NewSyncProducer(TransactionTopic)
 	http.HandleFunc("/segmentio/transaction", handler.NewTransactionHandlerImpl(transactionProducer).Handle)
 
-	http.Handle("/segmentio/metrics", promhttp.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 	log.Panicln(http.ListenAndServe(":8070", nil))
 }

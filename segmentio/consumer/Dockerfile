@@ -8,4 +8,4 @@ FROM scratch
 COPY --from=builder /bin/app /bin/app
 ENV KAFKA_BOOTSTRAP_SERVERS "kafka:29092"
 ENTRYPOINT ["/bin/app"]
-EXPOSE 8070
+EXPOSE 8071

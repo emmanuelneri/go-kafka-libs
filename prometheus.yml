@@ -1,0 +1,31 @@
+scrape_configs:
+  - job_name: confluent-consumer
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - confluentconsumer:8081
+  - job_name: confluent-producer
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - confluentproducer:8080
+  - job_name: sarama-consumer
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - saramaconsumer:8091
+  - job_name: sarama-producer
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - saramaproducer:8090
+  - job_name: segmentio-consumer
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - segmentioconsumer:8071
+  - job_name: segmentio-producer
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - segmentioproducer:8070
