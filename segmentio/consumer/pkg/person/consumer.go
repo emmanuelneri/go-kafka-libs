@@ -2,7 +2,8 @@ package person
 
 import (
 	"github.com/segmentio/kafka-go"
-	"log"
+	"go.uber.org/zap"
+	"segmentio_consumer/internal/logs"
 )
 
 type MessageProcessor interface {
@@ -17,7 +18,13 @@ func NewMessageProcessorImpl() MessageProcessor {
 }
 
 func (p MessageProcessorImpl) Process(m kafka.Message) {
-	log.Printf("[%s] - person message received. partition: %d - offset %v - key: %s - Message: %s",
-		m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-
+	logs.Logger.Info("person message received",
+		zap.String("topic", m.Topic),
+		zap.Int("partition", m.Partition),
+		zap.Int64("offset", m.Offset),
+		zap.String("key", string(m.Key)),
+		zap.String("value", string(m.Value)),
+		zap.String("context", "Person"),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 }

@@ -3,7 +3,9 @@ package main
 import (
 	"confluent_producer/internal/handler"
 	"confluent_producer/internal/kafka"
+	"confluent_producer/internal/logs"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 )
@@ -14,7 +16,9 @@ const (
 )
 
 func main() {
-	log.Println("### starting Confluent producer ###")
+	logs.Logger.Info("starting Confluent producer",
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 
 	producer, err := kafka.NewAsyncProducer()
 	if err != nil {

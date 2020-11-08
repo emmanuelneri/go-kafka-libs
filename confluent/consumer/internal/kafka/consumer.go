@@ -2,9 +2,10 @@ package kafka
 
 import (
 	"confluent_consumer/config"
+	"confluent_consumer/internal/logs"
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"log"
+	"go.uber.org/zap"
 )
 
 const consumerGroupId = "confluent-consumer"
@@ -36,7 +37,9 @@ func NewConsumer() (*Consumer, error) {
 }
 
 func (c *Consumer) Subscribe(topics []string) {
-	fmt.Printf("Subscribe %s", topics)
+	logs.Logger.Info(fmt.Sprintf("topics subscribed %s", topics),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 
 	for _, topic := range topics {
 		c.consumedChan[topic] = make(chan *kafka.Message)
@@ -55,9 +58,18 @@ func (c *Consumer) Subscribe(topics []string) {
 				topicChan := c.consumedChan[*event.TopicPartition.Topic]
 				topicChan <- event
 			case kafka.PartitionEOF:
-				fmt.Printf("PartitionEOF %v\n", event)
+				logs.Logger.Error("Consume partitionEOF event",
+					zap.Error(err),
+					zap.Any("event", event),
+					zap.String("lib", logs.Lib),
+					zap.String("projectType", logs.ProjectType))
+
 			case kafka.Error:
-				log.Panicf("Message error Error: %v\n", event)
+				logs.Logger.Fatal("Consume kafka error event",
+					zap.Error(err),
+					zap.Any("event", event),
+					zap.String("lib", logs.Lib),
+					zap.String("projectType", logs.ProjectType))
 			default:
 			}
 		}

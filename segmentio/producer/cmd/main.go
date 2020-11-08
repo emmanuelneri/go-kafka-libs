@@ -2,8 +2,10 @@ package main
 
 import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
+	logs "segmentio_producer/internal"
 	"segmentio_producer/internal/handler"
 	"segmentio_producer/internal/kafka"
 )
@@ -14,7 +16,9 @@ const (
 )
 
 func main() {
-	log.Println("### starting Segmentio producer ###")
+	logs.Logger.Info("starting Segmentio producer",
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 
 	personProducer := kafka.NewSyncProducer(PersonTopic)
 	http.HandleFunc("/segmentio/person", handler.NewPersonHandlerImpl(personProducer).Handle)

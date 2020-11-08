@@ -2,7 +2,8 @@ package transaction
 
 import (
 	"github.com/Shopify/sarama"
-	"log"
+	"go.uber.org/zap"
+	"sarama_consumer/internal/logs"
 )
 
 type MessageProcessor interface {
@@ -17,6 +18,13 @@ func NewMessageProcessorImpl() MessageProcessor {
 }
 
 func (p MessageProcessorImpl) Process(m sarama.ConsumerMessage) {
-	log.Printf("[%s] - transaction message received. partition: %d - offset %d - key: %s - Message: %s",
-		m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
+	logs.Logger.Info("transaction message received",
+		zap.String("topic", m.Topic),
+		zap.Int32("partition", m.Partition),
+		zap.Int64("offset", m.Offset),
+		zap.String("key", string(m.Key)),
+		zap.String("value", string(m.Value)),
+		zap.String("context", "Transaction"),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 }

@@ -2,14 +2,18 @@ package main
 
 import (
 	"confluent_consumer/internal/kafka"
+	"confluent_consumer/internal/logs"
 	"confluent_consumer/pkg"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 )
 
 func main() {
-	log.Println("### starting Confluent consumer ###")
+	logs.Logger.Info("starting Confluent consumer",
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 
 	consumer, err := kafka.NewConsumer()
 	if err != nil {

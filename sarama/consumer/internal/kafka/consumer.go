@@ -2,9 +2,11 @@ package kafka
 
 import (
 	"context"
+	"fmt"
 	"github.com/Shopify/sarama"
-	"log"
+	"go.uber.org/zap"
 	"sarama_consumer/config"
+	"sarama_consumer/internal/logs"
 )
 
 const consumerGroupId = "sarama-consumer"
@@ -40,7 +42,10 @@ func (consumer *Consumer) ConsumedChan() map[string]chan sarama.ConsumerMessage 
 }
 
 func (consumer *Consumer) Subscribe(ctx context.Context, topics []string, ready chan bool) {
-	log.Printf("topic subscribed %s", topics)
+	logs.Logger.Info(fmt.Sprintf("topics subscribed %s", topics),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
+
 	go logErrors(consumer.consumerGroup.Errors())
 
 	for _, topic := range topics {
@@ -63,13 +68,19 @@ func (consumer *Consumer) consume(ctx context.Context, topics []string, handler 
 	for {
 		err := consumer.consumerGroup.Consume(ctx, topics, handler)
 		if err != nil {
-			log.Fatalf("consume group error. %v", err)
+			logs.Logger.Fatal("consume group error",
+				zap.Error(err),
+				zap.String("lib", logs.Lib),
+				zap.String("projectType", logs.ProjectType))
 		}
 	}
 }
 
 func logErrors(errorsChan <-chan error) {
 	for err := range errorsChan {
-		log.Printf("Error: %v", err)
+		logs.Logger.Error("consumer error channel",
+			zap.Error(err),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
 	}
 }

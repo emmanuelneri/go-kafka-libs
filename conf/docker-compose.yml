@@ -4,23 +4,23 @@ networks:
     external:
       name: go-kafka-libs
 services:
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-       - "3000:3000"
-    depends_on:
-      - prometheus
+#  prometheus:
+#    image: prom/prometheus
+#    container_name: prometheus
+#    ports:
+#      - "9090:9090"
+#    command:
+#      - --config.file=/etc/prometheus/prometheus.yml
+#    volumes:
+#      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#
+#  grafana:
+#    image: grafana/grafana
+#    container_name: grafana
+#    ports:
+#       - "3000:3000"
+#    depends_on:
+#      - prometheus
 
   elasticsearch:
     image: elasticsearch:7.9.3
@@ -37,7 +37,6 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
-      - prometheus
 
   fluentd:
     build: ./fluentd

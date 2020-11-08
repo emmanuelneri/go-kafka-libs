@@ -2,14 +2,18 @@ package main
 
 import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"sarama_consumer/internal/kafka"
+	"sarama_consumer/internal/logs"
 	"sarama_consumer/pkg"
 )
 
 func main() {
-	log.Println("### starting Sarama consumer ###")
+	logs.Logger.Info("starting Sarama consumer",
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 
 	consumer, err := kafka.NewConsumer()
 	if err != nil {

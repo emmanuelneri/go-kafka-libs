@@ -2,12 +2,15 @@ package handler
 
 import (
 	"confluent_producer/internal/kafka"
+	"confluent_producer/internal/logs"
 	"confluent_producer/pkg/transaction"
 	"encoding/json"
 	confluentKafka "github.com/confluentinc/confluent-kafka-go/kafka"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 )
+
+const TransactionContext = "Transaction"
 
 type TransactionHandler interface {
 	Handle(responseWriter http.ResponseWriter, request *http.Request)
@@ -31,7 +34,14 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 	transactionRequested := &transaction.Transaction{}
 	err := json.NewDecoder(request.Body).Decode(&transactionRequested)
 	if err != nil {
-		log.Printf("[ERROR] fail to decode transaction. %s", err)
+		logs.Logger.Error("fail to decode transaction",
+			zap.Error(err),
+			zap.String("url", request.RequestURI),
+			zap.String("method", request.Method),
+			zap.String("context", TransactionContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -39,24 +49,45 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 	defer request.Body.Close()
 	body, err := json.Marshal(transactionRequested)
 	if err != nil {
-		log.Printf("[ERROR] fail to Marshal transaction. %s", err)
+		logs.Logger.Error("fail to Marshal transaction",
+			zap.Error(err),
+			zap.String("url", request.RequestURI),
+			zap.String("method", request.Method),
+			zap.String("context", TransactionContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	messageKey := transactionRequested.Identifier
 	message := &confluentKafka.Message{
 		TopicPartition: confluentKafka.TopicPartition{Topic: &t.topic, Partition: confluentKafka.PartitionAny},
-		Key:            []byte(transactionRequested.Identifier),
+		Key:            []byte(messageKey),
 		Value:          body,
 	}
 
 	partition, offset, err := t.producer.Produce(message)
 	if err != nil {
-		log.Printf("[ERROR] fail to produce transaction. %s", err)
+		logs.Logger.Error("fail to produce transaction",
+			zap.Error(err),
+			zap.String("topic", t.topic),
+			zap.String("key", messageKey),
+			zap.String("context", TransactionContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("[%s] - transaction %s produced. partition: %d - offset: %s",
-		t.topic, transactionRequested.Identifier, partition, offset)
+	logs.Logger.Info("transaction produced",
+		zap.String("topic", t.topic),
+		zap.String("key", messageKey),
+		zap.Int32("partition", partition),
+		zap.String("offset", offset),
+		zap.String("context", TransactionContext),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 }

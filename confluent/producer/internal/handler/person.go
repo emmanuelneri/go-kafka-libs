@@ -2,12 +2,15 @@ package handler
 
 import (
 	"confluent_producer/internal/kafka"
+	"confluent_producer/internal/logs"
 	"confluent_producer/pkg/person"
 	"encoding/json"
 	confluentKafka "github.com/confluentinc/confluent-kafka-go/kafka"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 )
+
+const personContext = "Person"
 
 type PersonHandler interface {
 	Handle(responseWriter http.ResponseWriter, request *http.Request)
@@ -31,7 +34,14 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 	personRequested := &person.Person{}
 	err := json.NewDecoder(request.Body).Decode(&personRequested)
 	if err != nil {
-		log.Printf("[ERROR] fail to decode person. %s", err)
+		logs.Logger.Error("fail to decode person",
+			zap.Error(err),
+			zap.String("url", request.RequestURI),
+			zap.String("method", request.Method),
+			zap.String("context", personContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -39,24 +49,45 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 	defer request.Body.Close()
 	body, err := json.Marshal(personRequested)
 	if err != nil {
-		log.Printf("[ERROR] fail to Marshal person. %s", err)
+		logs.Logger.Error("fail to Marshal person",
+			zap.Error(err),
+			zap.String("url", request.RequestURI),
+			zap.String("method", request.Method),
+			zap.String("context", personContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	messageKey := personRequested.Document
 	message := &confluentKafka.Message{
 		TopicPartition: confluentKafka.TopicPartition{Topic: &p.topic, Partition: confluentKafka.PartitionAny},
-		Key:            []byte(personRequested.Document),
+		Key:            []byte(messageKey),
 		Value:          body,
 	}
 
 	partition, offset, err := p.producer.Produce(message)
 	if err != nil {
-		log.Printf("[ERROR] fail to produce person. %s", err)
+		logs.Logger.Error("fail to produce person",
+			zap.Error(err),
+			zap.String("topic", p.topic),
+			zap.String("key", messageKey),
+			zap.String("context", personContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("[%s] - person %s produced. partition: %d - offset: %s",
-		p.topic, personRequested.Document, partition, offset)
+	logs.Logger.Info("person produced",
+		zap.String("topic", p.topic),
+		zap.String("key", messageKey),
+		zap.Int32("partition", partition),
+		zap.String("offset", offset),
+		zap.String("context", personContext),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 }

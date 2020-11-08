@@ -3,11 +3,14 @@ package handler
 import (
 	"encoding/json"
 	"github.com/Shopify/sarama"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 	"sarama_producer/internal/kafka"
+	"sarama_producer/internal/logs"
 	"sarama_producer/pkg/person"
 )
+
+const personContext = "Person"
 
 type PersonHandler interface {
 	Handle(responseWriter http.ResponseWriter, request *http.Request)
@@ -31,7 +34,14 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 	personRequested := &person.Person{}
 	err := json.NewDecoder(request.Body).Decode(&personRequested)
 	if err != nil {
-		log.Printf("[ERROR] fail to decode person. %s", err)
+		logs.Logger.Error("fail to decode person",
+			zap.Error(err),
+			zap.String("url", request.RequestURI),
+			zap.String("method", request.Method),
+			zap.String("context", personContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -39,24 +49,45 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 	defer request.Body.Close()
 	body, err := json.Marshal(personRequested)
 	if err != nil {
-		log.Printf("[ERROR] fail to Marshal person. %s", err)
+		logs.Logger.Error("fail to Marshal person",
+			zap.Error(err),
+			zap.String("url", request.RequestURI),
+			zap.String("method", request.Method),
+			zap.String("context", personContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	messageKey := personRequested.Document
 	message := &sarama.ProducerMessage{
 		Topic: p.topic,
-		Key:   sarama.ByteEncoder(personRequested.Document),
+		Key:   sarama.ByteEncoder(messageKey),
 		Value: sarama.ByteEncoder(body),
 	}
 
 	partition, offset, err := p.producer.Produce(message)
 	if err != nil {
-		log.Printf("[ERROR] fail to produce person. %s", err)
+		logs.Logger.Error("fail to produce person",
+			zap.Error(err),
+			zap.String("topic", p.topic),
+			zap.String("key", messageKey),
+			zap.String("context", personContext),
+			zap.String("lib", logs.Lib),
+			zap.String("projectType", logs.ProjectType))
+
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("[%s] - person %s produced. partition: %d - offset: %d",
-		p.topic, personRequested.Document, partition, offset)
+	logs.Logger.Info("person produced",
+		zap.String("topic", p.topic),
+		zap.String("key", messageKey),
+		zap.Int32("partition", partition),
+		zap.Int64("offset", offset),
+		zap.String("context", personContext),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 }

@@ -2,9 +2,11 @@ package pkg
 
 import (
 	"confluent_consumer/internal/kafka"
+	"confluent_consumer/internal/logs"
 	"confluent_consumer/pkg/person"
 	"confluent_consumer/pkg/transaction"
 	"fmt"
+	"go.uber.org/zap"
 )
 
 const (
@@ -56,7 +58,9 @@ func (k KafkaSubscriberImpl) Start() {
 				}
 			}()
 		default:
-			panic(fmt.Sprintf("topic not mapped %s", t))
+			logs.Logger.Panic(fmt.Sprintf("topic not mapped %s", t),
+				zap.String("lib", logs.Lib),
+				zap.String("projectType", logs.ProjectType))
 		}
 	}
 }

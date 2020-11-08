@@ -3,7 +3,9 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"sarama_consumer/internal/kafka"
+	"sarama_consumer/internal/logs"
 	"sarama_consumer/pkg/person"
 	"sarama_consumer/pkg/transaction"
 )
@@ -60,7 +62,9 @@ func (k KafkaSubscriberImpl) Start() {
 				}
 			}()
 		default:
-			panic(fmt.Sprintf("topic not mapped %s", t))
+			logs.Logger.Panic(fmt.Sprintf("topic not mapped %s", t),
+				zap.String("lib", logs.Lib),
+				zap.String("projectType", logs.ProjectType))
 		}
 	}
 }

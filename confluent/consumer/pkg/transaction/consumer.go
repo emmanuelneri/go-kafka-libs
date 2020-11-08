@@ -1,8 +1,9 @@
 package transaction
 
 import (
+	"confluent_consumer/internal/logs"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"log"
+	"go.uber.org/zap"
 )
 
 type MessageProcessor interface {
@@ -17,6 +18,13 @@ func NewMessageProcessorImpl() MessageProcessor {
 }
 
 func (p MessageProcessorImpl) Process(m *kafka.Message) {
-	log.Printf("[%s] - transaction message received. partition: %d - offset %d - key: %s - Message: %s",
-		*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset, string(m.Key), string(m.Value))
+	logs.Logger.Info("transaction message received",
+		zap.Stringp("topic", m.TopicPartition.Topic),
+		zap.Int32("partition", m.TopicPartition.Partition),
+		zap.Any("offset", m.TopicPartition.Offset),
+		zap.String("key", string(m.Key)),
+		zap.String("value", string(m.Value)),
+		zap.String("context", "Transaction"),
+		zap.String("lib", logs.Lib),
+		zap.String("projectType", logs.ProjectType))
 }

@@ -7,7 +7,7 @@ segmentioURL=http://localhost:8070/segmentio
 personURI=person
 transactionURI=transaction
 
-urls="${saramaURL} ${confluentURL} ${segmentioURL}"
+urls="${confluentURL} ${segmentioURL}"
 TOTAL=100
 
 START=$(date +%s)
