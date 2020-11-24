@@ -9,6 +9,7 @@ import (
 	logs "segmentio_producer/internal"
 	"segmentio_producer/internal/kafka"
 	"segmentio_producer/pkg/person"
+	"time"
 )
 
 const personContext = "Person"
@@ -67,6 +68,7 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 		Value: body,
 	}
 
+	startTime := time.Now()
 	err = p.producer.Produce(context.Background(), message)
 	if err != nil {
 		logs.Logger.Error("fail to produce person",
@@ -74,6 +76,7 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 			zap.String("topic", p.producer.Topic()),
 			zap.String("key", messageKey),
 			zap.String("context", personContext),
+			zap.String("duration", time.Since(startTime).String()),
 			zap.String("lib", logs.Lib),
 			zap.String("projectType", logs.ProjectType))
 
@@ -85,6 +88,7 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 		zap.String("topic", p.producer.Topic()),
 		zap.String("key", messageKey),
 		zap.String("context", personContext),
+		zap.String("duration", time.Since(startTime).String()),
 		zap.String("lib", logs.Lib),
 		zap.String("projectType", logs.ProjectType))
 }

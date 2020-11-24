@@ -8,6 +8,7 @@ import (
 	"sarama_producer/internal/kafka"
 	"sarama_producer/internal/logs"
 	"sarama_producer/pkg/transaction"
+	"time"
 )
 
 const TransactionContext = "Transaction"
@@ -68,6 +69,7 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 		Value: sarama.ByteEncoder(body),
 	}
 
+	startTime := time.Now()
 	partition, offset, err := t.producer.Produce(message)
 	if err != nil {
 		logs.Logger.Error("fail to produce transaction",
@@ -75,6 +77,7 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 			zap.String("topic", t.topic),
 			zap.String("key", messageKey),
 			zap.String("context", TransactionContext),
+			zap.String("duration", time.Since(startTime).String()),
 			zap.String("lib", logs.Lib),
 			zap.String("projectType", logs.ProjectType))
 
@@ -88,6 +91,7 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 		zap.Int32("partition", partition),
 		zap.Int64("offset", offset),
 		zap.String("context", TransactionContext),
+		zap.String("duration", time.Since(startTime).String()),
 		zap.String("lib", logs.Lib),
 		zap.String("projectType", logs.ProjectType))
 }

@@ -18,12 +18,12 @@ func NewSyncProducer() (Producer, error) {
 	c.Version = config.KafkaVersion
 	c.Producer.Return.Successes = true
 	c.Producer.Return.Errors = true
-	asyncProducer, err := sarama.NewSyncProducer(config.KafkaBrokers(), c)
+	syncProducer, err := sarama.NewSyncProducer(config.KafkaBrokers(), c)
 	if err != nil {
 		return nil, err
 	}
 
-	return &SyncProducer{sync: asyncProducer}, nil
+	return &SyncProducer{sync: syncProducer}, nil
 }
 
 func NewSaramaSyncProducer(saramaSyncProducer sarama.SyncProducer) Producer {

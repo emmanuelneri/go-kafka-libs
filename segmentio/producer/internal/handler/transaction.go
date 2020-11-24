@@ -9,6 +9,7 @@ import (
 	logs "segmentio_producer/internal"
 	"segmentio_producer/internal/kafka"
 	"segmentio_producer/pkg/transaction"
+	"time"
 )
 
 const TransactionContext = "Transaction"
@@ -67,6 +68,7 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 		Value: body,
 	}
 
+	startTime := time.Now()
 	err = t.producer.Produce(context.Background(), message)
 	if err != nil {
 		logs.Logger.Error("fail to produce transaction",
@@ -74,6 +76,7 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 			zap.String("topic", t.producer.Topic()),
 			zap.String("key", messageKey),
 			zap.String("context", TransactionContext),
+			zap.String("duration", time.Since(startTime).String()),
 			zap.String("lib", logs.Lib),
 			zap.String("projectType", logs.ProjectType))
 
@@ -85,6 +88,7 @@ func (t TransactionHandlerImpl) Handle(writer http.ResponseWriter, request *http
 		zap.String("topic", t.producer.Topic()),
 		zap.String("key", messageKey),
 		zap.String("context", TransactionContext),
+		zap.String("duration", time.Since(startTime).String()),
 		zap.String("lib", logs.Lib),
 		zap.String("projectType", logs.ProjectType))
 }

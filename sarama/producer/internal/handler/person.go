@@ -8,6 +8,7 @@ import (
 	"sarama_producer/internal/kafka"
 	"sarama_producer/internal/logs"
 	"sarama_producer/pkg/person"
+	"time"
 )
 
 const personContext = "Person"
@@ -68,6 +69,7 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 		Value: sarama.ByteEncoder(body),
 	}
 
+	startTime := time.Now()
 	partition, offset, err := p.producer.Produce(message)
 	if err != nil {
 		logs.Logger.Error("fail to produce person",
@@ -75,6 +77,7 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 			zap.String("topic", p.topic),
 			zap.String("key", messageKey),
 			zap.String("context", personContext),
+			zap.String("duration", time.Since(startTime).String()),
 			zap.String("lib", logs.Lib),
 			zap.String("projectType", logs.ProjectType))
 
@@ -88,6 +91,7 @@ func (p PersonHandlerImpl) Handle(writer http.ResponseWriter, request *http.Requ
 		zap.Int32("partition", partition),
 		zap.Int64("offset", offset),
 		zap.String("context", personContext),
+		zap.String("duration", time.Since(startTime).String()),
 		zap.String("lib", logs.Lib),
 		zap.String("projectType", logs.ProjectType))
 }
